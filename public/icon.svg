@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#C4A35A"/>
+  <g transform="translate(96, 80)">
+    <!-- Book -->
+    <path d="M160 0C100 0 40 20 40 20v280s60-20 120-20 120 20 120 20V20S220 0 160 0z" fill="#FDF8F0" stroke="#8B6914" stroke-width="8"/>
+    <line x1="160" y1="20" x2="160" y2="280" stroke="#E0D0B0" stroke-width="3"/>
+    <!-- Pen -->
+    <path d="M260 340l40-200 20 4-36 200z" fill="#4A3F30"/>
+    <path d="M300 140l20 4 8-16-20-4z" fill="#8B6914"/>
+    <circle cx="262" cy="344" r="4" fill="#4A3F30"/>
+  </g>
+</svg>

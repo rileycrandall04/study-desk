@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ──────────────────────────────────────────────────── */
+
+@layer base {
+  body {
+    @apply bg-parchment-50 text-ink-500 antialiased font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dark body,
+  :root.dark body {
+    @apply bg-dark-bg text-parchment-300;
+  }
+
+  ::selection {
+    @apply bg-gold-200 text-ink-600;
+  }
+
+  .dark ::selection {
+    @apply bg-gold-600/40 text-parchment-100;
+  }
+}
+
+/* ── Component classes ─────────────────────────────────────── */
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold-400 text-white px-4 py-2 rounded-lg font-sans font-medium text-sm
+           hover:bg-gold-500 active:bg-gold-600 transition-colors
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-parchment-100 text-ink-400 px-4 py-2 rounded-lg font-sans font-medium text-sm
+           border border-parchment-300 hover:bg-parchment-200 transition-colors;
+  }
+
+  .btn-ghost {
+    @apply text-ink-300 px-3 py-2 rounded-lg font-sans text-sm
+           hover:bg-parchment-100 transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-parchment-200 p-4;
+  }
+
+  .dark .card {
+    @apply bg-dark-surface border-dark-border;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border-parchment-300 shadow-sm font-sans text-sm text-ink-500
+           focus:border-gold-400 focus:ring-gold-400;
+  }
+
+  .dark .input-field {
+    @apply bg-dark-surface border-dark-border text-parchment-300 placeholder:text-parchment-500;
+  }
+
+  .paper-texture {
+    background-image: url('/paper-texture.png');
+    background-repeat: repeat;
+    background-size: 300px 300px;
+    background-blend-mode: multiply;
+  }
+}
+
+/* ── TipTap Editor Styles ──────────────────────────────────── */
+
+.journal-editor .tiptap {
+  @apply outline-none font-serif text-ink-500 text-base leading-relaxed;
+  min-height: 200px;
+}
+
+.dark .journal-editor .tiptap {
+  @apply text-parchment-300;
+}
+
+.journal-editor .tiptap:focus {
+  @apply outline-none;
+}
+
+.journal-editor .tiptap p {
+  @apply my-0;
+}
+
+.journal-editor .tiptap p + p {
+  margin-top: 0.25em;
+}
+
+.journal-editor .tiptap h2 {
+  @apply font-serif text-xl font-bold text-ink-600 mt-6 mb-2;
+}
+
+.dark .journal-editor .tiptap h2 {
+  @apply text-parchment-200;
+}
+
+.journal-editor .tiptap h3 {
+  @apply font-serif text-lg font-semibold text-ink-600 mt-4 mb-1;
+}
+
+.dark .journal-editor .tiptap h3 {
+  @apply text-parchment-200;
+}
+
+.journal-editor .tiptap ul {
+  @apply list-disc pl-6 my-2;
+}
+
+.journal-editor .tiptap ol {
+  @apply list-decimal pl-6 my-2;
+}
+
+.journal-editor .tiptap li {
+  @apply my-0.5;
+}
+
+.journal-editor .tiptap blockquote {
+  @apply border-l-4 border-gold-300 pl-4 italic text-ink-400 my-3;
+}
+
+.dark .journal-editor .tiptap blockquote {
+  @apply border-gold-600 text-parchment-400;
+}
+
+.journal-editor .tiptap strong {
+  @apply font-bold text-ink-600;
+}
+
+.dark .journal-editor .tiptap strong {
+  @apply text-parchment-200;
+}
+
+.journal-editor .tiptap em {
+  @apply italic;
+}
+
+.journal-editor .tiptap u {
+  @apply underline;
+}
+
+/* Placeholder */
+.journal-editor .tiptap p.is-editor-empty:first-child::before {
+  @apply text-parchment-400 pointer-events-none float-left h-0;
+  content: attr(data-placeholder);
+}
+
+.dark .journal-editor .tiptap p.is-editor-empty:first-child::before {
+  @apply text-parchment-500;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Thin warm scrollbar for sidebar */
+.warm-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.warm-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.warm-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-parchment-300 rounded-full;
+}
+
+.warm-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-parchment-400;
+}
+
+.dark .warm-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-dark-muted;
+}
+
+.dark .warm-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-300;
+}
+
+/* ── Safe area ─────────────────────────────────────────────── */
+
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
