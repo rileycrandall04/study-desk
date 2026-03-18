@@ -189,6 +189,16 @@
   @apply bg-ink-300;
 }
 
+/* ── Talk Reader ──────────────────────────────────────────── */
+
+.talk-paragraph a {
+  @apply text-gold-500 dark:text-gold-400 underline;
+}
+
+.talk-footnote {
+  @apply text-[9px] font-sans text-parchment-400 dark:text-parchment-500 cursor-default;
+}
+
 /* ── Safe area ─────────────────────────────────────────────── */
 
 .safe-area-bottom {

@@ -5,7 +5,7 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 
 ## Architecture Notes
 - Offline-first: Dexie.js (IndexedDB) for all local data, Firebase for future cloud sync
-- Standard Works bundled as JSON (~5MB), Conference talks fetched via Open Scripture API and cached
+- Standard Works bundled as JSON (~5MB), Conference talks fetched from iffy/generalconference GitHub repo (1971-2015) + Church website (2016+) and cached in Dexie
 - TipTap rich text editor for journal entries (same patterns as Organize Yourselves)
 - Session state persisted in Dexie sessionState table (key-value store)
 - PWA with service worker for offline capability
@@ -24,8 +24,10 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - **Aesthetic:** Warm & papery — cream backgrounds, warm browns, subtle paper texture
 
 ## Key Files
-- `src/db.js` — Dexie database: journalEntries + sessionState
+- `src/db.js` — Dexie database: journalEntries + sessionState + conferenceTalks
 - `src/hooks/useDb.js` — useLiveQuery hooks for reactive data
+- `src/hooks/useConference.js` — useConferenceTalks, useTalk, useConferenceSearch hooks
+- `src/utils/conferences.js` — Conference data layer (CONFERENCES list, YAML/MD parsers, fetch/cache)
 - `src/components/journal/JournalEditor.jsx` — TipTap editor with auto-save
 - `src/components/layout/AppShell.jsx` — CSS Grid split-pane layout
 
@@ -33,7 +35,7 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - Phase 1: Core layout, design system, journal editor (COMPLETE)
   - Phase 1 Polish: Tags, dark mode, backup/restore, settings page (COMPLETE)
 - Phase 2: Scripture reader with bundled Standard Works (COMPLETE)
-- Phase 3: Conference talks via Open Scripture API
+- Phase 3: Conference talks reader (COMPLETE)
 - Phase 4+: Annotations, cross-references, topic index, talk prep, AI features
 
 ## Phase 1 Polish Details
@@ -52,3 +54,17 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - **Search:** debounced search across all volumes, results show reference + snippet, clickable to navigate
 - **Persistence:** last-viewed chapter saved in Dexie sessionState ('scripturePosition')
 - **Data normalization:** `loadVolume()` normalizes all volumes to uniform `{ books: [{ name, chapters: [{ number, reference, verses }] }] }`
+
+## Phase 3 Details — Conference Talks
+- **Data sources:** GitHub repo `iffy/generalconference` (1971-2015, ~2700 talks), Church website (2016-2025), manual import (any year)
+- **Database:** Dexie v2, `conferenceTalks` table indexed on `key, year, month, speaker, [year+month]`
+- **Components:** ResourcePane (mode toggle), ConferenceTalkContent (state container), ConferenceList (expandable list), TalkReader (paragraph selection + quote), ConferenceHeader (search), TalkImport (manual form)
+- **Mode toggle:** segmented `[BookOpen] Scriptures | [Mic] Talks` at top of ResourcePane, persisted in sessionState
+- **YAML parser:** lightweight custom `parseIndexYaml()` for iffy repo index.yml format (~30 lines)
+- **Markdown→HTML:** custom `markdownToHtml()` handles headings, paragraphs, blockquotes, bold, italic, links, footnotes (~40 lines)
+- **Church website parser:** extracts `__INITIAL_STATE__` JSON from `<script>` tag, graceful fallback to manual import
+- **Caching:** Dexie-first (offline-capable), talk metadata fetched on conference expand, full text on talk open
+- **Paragraph selection:** click paragraphs for gold highlight, "Insert Quote" builds blockquote with speaker attribution
+- **Search:** debounced search across cached talks (speaker, title, text), results clickable to navigate
+- **Session persistence:** last mode + last talk position saved in Dexie sessionState
+- **No new dependencies:** YAML, Markdown, and HTML parsing all custom lightweight

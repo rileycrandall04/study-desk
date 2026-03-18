@@ -1,26 +1,44 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PanelLeftClose, PanelLeft } from 'lucide-react';
+import { PanelLeftClose, PanelLeft, BookOpen, Mic } from 'lucide-react';
 import ScriptureHeader from './ScriptureHeader';
 import ScriptureNav from './ScriptureNav';
 import ScriptureReader from './ScriptureReader';
+import ConferenceTalkContent from './ConferenceTalkContent';
 import { useVolume } from '../../hooks/useScripture';
 import { getSessionValue, setSessionValue } from '../../db';
 
 const SESSION_KEY = 'scripturePosition';
+const MODE_KEY = 'resourceMode';
 
 /**
- * Right pane — scripture reader with sidebar navigation, search, and verse reader.
+ * Right pane — scripture reader or conference talks, with mode toggle.
  */
 export default function ResourcePane({ onInsertQuote }) {
+  const [resourceMode, setResourceMode] = useState('scriptures'); // 'scriptures' | 'talks'
+  const [modeRestored, setModeRestored] = useState(false);
   const [volumeId, setVolumeId] = useState(null);
   const [bookIdx, setBookIdx] = useState(null);
   const [chapterIdx, setChapterIdx] = useState(null);
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [restored, setRestored] = useState(false);
 
-  const { data: volumeData, loading } = useVolume(volumeId);
+  const { data: volumeData, loading } = useVolume(resourceMode === 'scriptures' ? volumeId : null);
 
-  // Restore position on mount
+  // Restore mode
+  useEffect(() => {
+    getSessionValue(MODE_KEY).then(m => {
+      if (m === 'talks' || m === 'scriptures') setResourceMode(m);
+      setModeRestored(true);
+    });
+  }, []);
+
+  // Persist mode
+  useEffect(() => {
+    if (!modeRestored) return;
+    setSessionValue(MODE_KEY, resourceMode);
+  }, [resourceMode, modeRestored]);
+
+  // Restore scripture position on mount
   useEffect(() => {
     getSessionValue(SESSION_KEY).then(pos => {
       if (pos) {
@@ -32,7 +50,7 @@ export default function ResourcePane({ onInsertQuote }) {
     });
   }, []);
 
-  // Persist position
+  // Persist scripture position
   useEffect(() => {
     if (!restored) return;
     setSessionValue(SESSION_KEY, { volumeId, bookIdx, chapterIdx });
@@ -92,11 +110,22 @@ export default function ResourcePane({ onInsertQuote }) {
     if (hasNext) setChapterIdx(chapterIdx + 1);
   };
 
-  // Show reader when chapter is selected, otherwise show nav
-  const showReader = chapterIdx !== null && currentChapter;
+  // Conference talks mode
+  if (resourceMode === 'talks') {
+    return (
+      <div className="h-full flex flex-col">
+        <ModeToggle mode={resourceMode} onChange={setResourceMode} />
+        <div className="flex-1 min-h-0">
+          <ConferenceTalkContent onInsertQuote={onInsertQuote} />
+        </div>
+      </div>
+    );
+  }
 
+  // Scripture mode
   return (
     <div className="h-full flex flex-col">
+      <ModeToggle mode={resourceMode} onChange={setResourceMode} />
       <ScriptureHeader onNavigateTo={handleNavigateTo} />
 
       <div className="flex-1 flex min-h-0">
@@ -143,6 +172,30 @@ export default function ResourcePane({ onInsertQuote }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Segmented toggle: Scriptures | Talks */
+function ModeToggle({ mode, onChange }) {
+  const btn = (value, label, Icon) => (
+    <button
+      onClick={() => onChange(value)}
+      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-sans font-medium rounded-md transition-colors ${
+        mode === value
+          ? 'bg-gold-400 text-white shadow-sm'
+          : 'text-ink-300 dark:text-parchment-400 hover:text-ink-500 dark:hover:text-parchment-200'
+      }`}
+    >
+      <Icon size={12} />
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="flex gap-1 px-3 py-2 border-b border-parchment-200 dark:border-dark-border flex-shrink-0 bg-parchment-50 dark:bg-dark-surface">
+      {btn('scriptures', 'Scriptures', BookOpen)}
+      {btn('talks', 'Talks', Mic)}
     </div>
   );
 }
