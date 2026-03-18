@@ -5,13 +5,13 @@ import ConferenceList from './ConferenceList';
 import TalkReader from './TalkReader';
 import TalkImport from './TalkImport';
 
-const SESSION_KEY = 'conferencePosition';
-
 /**
  * Container managing conference talk navigation state.
  * Routes between list, reader, and import views.
+ * Accepts paneId to scope session persistence (multiple instances can coexist).
  */
-export default function ConferenceTalkContent({ onInsertQuote }) {
+export default function ConferenceTalkContent({ paneId, onInsertQuote }) {
+  const SESSION_KEY = paneId ? `conferencePosition-${paneId}` : 'conferencePosition';
   const [selectedTalk, setSelectedTalk] = useState(null); // { year, month, key }
   const [showImport, setShowImport] = useState(false);
   const [restored, setRestored] = useState(false);
