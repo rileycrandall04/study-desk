@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PanelLeftClose, PanelLeft, Settings } from 'lucide-react';
 import EntrySidebar from './EntrySidebar';
@@ -8,8 +8,9 @@ import { useSessionState } from '../../hooks/useDb';
 
 /**
  * JournalPane — composes sidebar + editor for the left pane.
+ * Forwards ref to JournalEditor for quote insertion.
  */
-export default function JournalPane({ activeEntryId, onSelectEntry, onNewEntry }) {
+const JournalPane = forwardRef(function JournalPane({ activeEntryId, onSelectEntry, onNewEntry }, ref) {
   const [sidebarCollapsed, setSidebarCollapsed] = useSessionState('sidebarCollapsed', false);
   const navigate = useNavigate();
 
@@ -57,6 +58,7 @@ export default function JournalPane({ activeEntryId, onSelectEntry, onNewEntry }
         {/* Editor */}
         <div className="flex-1 min-h-0">
           <JournalEditor
+            ref={ref}
             entryId={activeEntryId}
             onEntryCreated={handleEntryCreated}
           />
@@ -64,4 +66,6 @@ export default function JournalPane({ activeEntryId, onSelectEntry, onNewEntry }
       </div>
     </div>
   );
-}
+});
+
+export default JournalPane;

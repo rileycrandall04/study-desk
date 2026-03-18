@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -31,7 +31,7 @@ function htmlToPlainText(html) {
  * JournalEditor — TipTap rich text editor with title, date, and auto-save.
  * Follows the same auto-save pattern as Organize Yourselves RichTextEditor.
  */
-export default function JournalEditor({ entryId, onEntryCreated }) {
+const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreated }, ref) {
   const { entry, loading } = useJournalEntry(entryId);
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState([]);
@@ -133,6 +133,22 @@ export default function JournalEditor({ entryId, onEntryCreated }) {
       }, AUTO_SAVE_MS);
     },
   });
+
+  // Expose insertContent for quote insertion from scripture pane
+  useImperativeHandle(ref, () => ({
+    insertContent(html) {
+      if (editor) {
+        editor.chain().focus().insertContent(html).run();
+        isDirtyRef.current = true;
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+          if (!isDirtyRef.current) return;
+          const h = editor.getHTML();
+          if (h !== lastSavedRef.current) performSave(h);
+        }, AUTO_SAVE_MS);
+      }
+    },
+  }), [editor, performSave]);
 
   // Save on visibility change (user switches tabs/apps)
   useEffect(() => {
@@ -318,4 +334,6 @@ export default function JournalEditor({ entryId, onEntryCreated }) {
       )}
     </div>
   );
-}
+});
+
+export default JournalEditor;

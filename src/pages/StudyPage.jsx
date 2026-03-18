@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import AppShell from '../components/layout/AppShell';
 import JournalPane from '../components/journal/JournalPane';
 import ResourcePane from '../components/resource/ResourcePane';
@@ -8,11 +8,13 @@ import { setSessionValue } from '../db';
 /**
  * StudyPage — main split-pane study view.
  * Restores last active entry from session state.
+ * Wires quote insertion from scripture pane → journal editor.
  */
 export default function StudyPage() {
   const [lastEntryId] = useSessionState('lastEntryId', null);
   const [activeEntryId, setActiveEntryId] = useState(null);
   const [initialized, setInitialized] = useState(false);
+  const editorRef = useRef(null);
 
   // Restore last entry on mount
   useEffect(() => {
@@ -36,16 +38,24 @@ export default function StudyPage() {
     setSessionValue('lastEntryId', null);
   }, []);
 
+  // Quote insertion from scripture pane → journal editor
+  const handleInsertQuote = useCallback((html) => {
+    if (editorRef.current) {
+      editorRef.current.insertContent(html);
+    }
+  }, []);
+
   return (
     <AppShell
       journalPane={
         <JournalPane
+          ref={editorRef}
           activeEntryId={activeEntryId}
           onSelectEntry={handleSelectEntry}
           onNewEntry={handleNewEntry}
         />
       }
-      resourcePane={<ResourcePane />}
+      resourcePane={<ResourcePane onInsertQuote={handleInsertQuote} />}
     />
   );
 }

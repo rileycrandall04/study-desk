@@ -32,7 +32,7 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 ## Phases
 - Phase 1: Core layout, design system, journal editor (COMPLETE)
   - Phase 1 Polish: Tags, dark mode, backup/restore, settings page (COMPLETE)
-- Phase 2: Scripture reader with bundled Standard Works
+- Phase 2: Scripture reader with bundled Standard Works (COMPLETE)
 - Phase 3: Conference talks via Open Scripture API
 - Phase 4+: Annotations, cross-references, topic index, talk prep, AI features
 
@@ -42,3 +42,13 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - **Backup & restore:** JSON export (versioned payload with metadata), JSON import with confirmation modal, BackupRestore component on Settings page
 - **Settings page:** `/settings` route, cards for Appearance (theme toggle) + Data (backup/restore) + About, gear icon in JournalPane toolbar
 - **TipTap:** downgraded to v2.27.2 (v3.20+ ships without dist/)
+
+## Phase 2 Details — Scripture Reader
+- **Data:** `@bencrowder/scriptures-json` (CC0), all 5 Standard Works, dynamic import per volume
+- **Components:** ResourcePane (container), ScriptureNav (sidebar), ScriptureReader (verses), ScriptureHeader (search)
+- **Navigation:** 3-level sidebar drill-down (Volume → Book → Chapter), D&C skips book level (singleBook flag)
+- **Verse selection:** click verses to highlight, "Insert Quote" button builds blockquote HTML with reference range
+- **Quote insertion:** forwardRef chain: StudyPage → JournalPane → JournalEditor.insertContent()
+- **Search:** debounced search across all volumes, results show reference + snippet, clickable to navigate
+- **Persistence:** last-viewed chapter saved in Dexie sessionState ('scripturePosition')
+- **Data normalization:** `loadVolume()` normalizes all volumes to uniform `{ books: [{ name, chapters: [{ number, reference, verses }] }] }`

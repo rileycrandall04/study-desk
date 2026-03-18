@@ -9,6 +9,7 @@ export default defineConfig({
     open: false,
   },
   build: {
+    chunkSizeWarningLimit: 5000, // scripture JSON chunks are large by design
     rollupOptions: {
       output: {
         manualChunks(id) {
