@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PanelLeftClose, PanelLeft, BookOpen, Mic } from 'lucide-react';
+import { PanelLeftClose, PanelLeft, BookOpen, Mic, LayoutPanelTop } from 'lucide-react';
 import ScriptureHeader from './ScriptureHeader';
 import ScriptureNav from './ScriptureNav';
 import ScriptureReader from './ScriptureReader';
@@ -14,7 +14,7 @@ const MODE_KEY = 'resourceMode';
  * Right pane — scripture reader or conference talks, with mode toggle.
  */
 export default function ResourcePane({ onInsertQuote }) {
-  const [resourceMode, setResourceMode] = useState('scriptures'); // 'scriptures' | 'talks'
+  const [resourceMode, setResourceMode] = useState('scriptures'); // 'scriptures' | 'talks' | 'split'
   const [modeRestored, setModeRestored] = useState(false);
   const [volumeId, setVolumeId] = useState(null);
   const [bookIdx, setBookIdx] = useState(null);
@@ -22,12 +22,12 @@ export default function ResourcePane({ onInsertQuote }) {
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [restored, setRestored] = useState(false);
 
-  const { data: volumeData, loading } = useVolume(resourceMode === 'scriptures' ? volumeId : null);
+  const { data: volumeData, loading } = useVolume(resourceMode !== 'talks' ? volumeId : null);
 
   // Restore mode
   useEffect(() => {
     getSessionValue(MODE_KEY).then(m => {
-      if (m === 'talks' || m === 'scriptures') setResourceMode(m);
+      if (m === 'talks' || m === 'scriptures' || m === 'split') setResourceMode(m);
       setModeRestored(true);
     });
   }, []);
@@ -110,26 +110,10 @@ export default function ResourcePane({ onInsertQuote }) {
     if (hasNext) setChapterIdx(chapterIdx + 1);
   };
 
-  // Conference talks mode
-  if (resourceMode === 'talks') {
-    return (
-      <div className="h-full flex flex-col">
-        <ModeToggle mode={resourceMode} onChange={setResourceMode} />
-        <div className="flex-1 min-h-0">
-          <ConferenceTalkContent onInsertQuote={onInsertQuote} />
-        </div>
-      </div>
-    );
-  }
-
-  // Scripture mode
-  return (
-    <div className="h-full flex flex-col">
-      <ModeToggle mode={resourceMode} onChange={setResourceMode} />
+  const scriptureContent = (
+    <>
       <ScriptureHeader onNavigateTo={handleNavigateTo} />
-
       <div className="flex-1 flex min-h-0">
-        {/* Navigation sidebar */}
         {!navCollapsed && (
           <div className="w-44 h-full border-r border-parchment-200 dark:border-dark-border flex-shrink-0">
             <ScriptureNav
@@ -144,10 +128,7 @@ export default function ResourcePane({ onInsertQuote }) {
             />
           </div>
         )}
-
-        {/* Reader area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Nav toggle */}
           <div className="flex items-center px-2 py-1 flex-shrink-0">
             <button
               onClick={() => setNavCollapsed(!navCollapsed)}
@@ -157,7 +138,6 @@ export default function ResourcePane({ onInsertQuote }) {
               {navCollapsed ? <PanelLeft size={14} /> : <PanelLeftClose size={14} />}
             </button>
           </div>
-
           <div className="flex-1 min-h-0">
             <ScriptureReader
               chapter={currentChapter}
@@ -172,11 +152,48 @@ export default function ResourcePane({ onInsertQuote }) {
           </div>
         </div>
       </div>
+    </>
+  );
+
+  // Conference talks mode
+  if (resourceMode === 'talks') {
+    return (
+      <div className="h-full flex flex-col">
+        <ModeToggle mode={resourceMode} onChange={setResourceMode} />
+        <div className="flex-1 min-h-0">
+          <ConferenceTalkContent onInsertQuote={onInsertQuote} />
+        </div>
+      </div>
+    );
+  }
+
+  // Split mode — scriptures top, talks bottom
+  if (resourceMode === 'split') {
+    return (
+      <div className="h-full flex flex-col">
+        <ModeToggle mode={resourceMode} onChange={setResourceMode} />
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 border-b border-parchment-300 dark:border-dark-border">
+            {scriptureContent}
+          </div>
+          <div className="flex-1 min-h-0">
+            <ConferenceTalkContent onInsertQuote={onInsertQuote} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Scripture mode
+  return (
+    <div className="h-full flex flex-col">
+      <ModeToggle mode={resourceMode} onChange={setResourceMode} />
+      {scriptureContent}
     </div>
   );
 }
 
-/** Segmented toggle: Scriptures | Talks */
+/** Segmented toggle: Scriptures | Talks | Split */
 function ModeToggle({ mode, onChange }) {
   const btn = (value, label, Icon) => (
     <button
@@ -196,6 +213,7 @@ function ModeToggle({ mode, onChange }) {
     <div className="flex gap-1 px-3 py-2 border-b border-parchment-200 dark:border-dark-border flex-shrink-0 bg-parchment-50 dark:bg-dark-surface">
       {btn('scriptures', 'Scriptures', BookOpen)}
       {btn('talks', 'Talks', Mic)}
+      {btn('split', 'Both', LayoutPanelTop)}
     </div>
   );
 }

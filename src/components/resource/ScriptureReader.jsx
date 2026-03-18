@@ -73,12 +73,12 @@ export default function ScriptureReader({
       {/* Verses */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto warm-scrollbar px-5 pb-4">
         {chapter.verses.map(v => (
-          <span
+          <p
             key={v.verse}
             onClick={() => toggleVerse(v.verse)}
-            className={`cursor-pointer inline transition-colors ${
+            className={`cursor-pointer mb-2 transition-colors ${
               selectedVerses.has(v.verse)
-                ? 'bg-gold-100 dark:bg-gold-600/20 rounded'
+                ? 'bg-gold-100 dark:bg-gold-600/20 rounded px-1 -mx-1'
                 : ''
             }`}
           >
@@ -87,8 +87,8 @@ export default function ScriptureReader({
             </sup>
             <span className="font-serif text-[15px] leading-relaxed text-ink-500 dark:text-parchment-300">
               {v.text}
-            </span>{' '}
-          </span>
+            </span>
+          </p>
         ))}
       </div>
 
