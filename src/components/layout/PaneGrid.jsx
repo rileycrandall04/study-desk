@@ -58,6 +58,17 @@ export default function PaneGrid({ layout, onLayoutChange, paneCount, onAddPane,
       {/* Grid */}
       <div className={`flex-1 grid ${gridClass} gap-1 p-1 min-h-0`}>
         {children}
+        {/* Empty slot placeholders */}
+        {Array.from({ length: Math.max(0, layoutConfig.slots - paneCount) }).map((_, i) => (
+          <button
+            key={`empty-${i}`}
+            onClick={onAddPane}
+            className="h-full flex flex-col items-center justify-center border-2 border-dashed border-parchment-300 dark:border-dark-border rounded-lg text-parchment-400 dark:text-parchment-500 hover:border-gold-300 hover:text-gold-400 dark:hover:border-gold-500/40 dark:hover:text-gold-400 transition-colors cursor-pointer"
+          >
+            <Plus size={24} className="mb-1" />
+            <span className="text-xs font-sans">Add pane</span>
+          </button>
+        ))}
       </div>
     </div>
   );

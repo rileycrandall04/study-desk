@@ -42,7 +42,19 @@ export default function StudyPage() {
   useEffect(() => {
     getSessionValue('paneLayout').then(saved => {
       if (saved?.panes?.length > 0 && saved?.layout) {
-        setPanes(saved.panes);
+        const layoutConfig = LAYOUTS.find(l => l.id === saved.layout);
+        let restoredPanes = saved.panes;
+
+        // Ensure pane count matches layout slots
+        if (layoutConfig && restoredPanes.length < layoutConfig.slots) {
+          const hasJournal = restoredPanes.some(p => p.type === 'journal');
+          while (restoredPanes.length < layoutConfig.slots) {
+            const needJournal = !hasJournal && !restoredPanes.some(p => p.type === 'journal');
+            restoredPanes = [...restoredPanes, { id: nextPaneId(), type: needJournal ? 'journal' : 'scriptures' }];
+          }
+        }
+
+        setPanes(restoredPanes);
         setLayout(saved.layout);
       }
       setLayoutRestored(true);
