@@ -32,7 +32,7 @@ function htmlToPlainText(html) {
  * Follows the same auto-save pattern as Organize Yourselves RichTextEditor.
  */
 const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreated }, ref) {
-  const { entry, loading } = useJournalEntry(entryId);
+  const { entry, loading: _loading } = useJournalEntry(entryId);
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');

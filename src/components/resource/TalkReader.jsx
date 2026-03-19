@@ -26,7 +26,7 @@ export default function TalkReader({ year, month, talkKey, onBack, onInsertQuote
       });
     }
     return els;
-  }, [talk?.textHtml]);
+  }, [talk]);
 
   // Reset selection when talk changes
   useEffect(() => {

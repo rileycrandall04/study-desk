@@ -4,7 +4,7 @@
 Scripture study companion PWA optimized for tablet landscape. Split-pane layout: always-visible journal editor (left) + resource viewer for scriptures and conference talks (right). Warm & papery aesthetic. Vanilla React + Vite + TailwindCSS + TipTap + Dexie.js. No build step beyond Vite.
 
 ## Architecture Notes
-- Offline-first: Dexie.js (IndexedDB) for all local data, Firebase for future cloud sync
+- Offline-first: Dexie.js (IndexedDB) for all local data, Firebase for cloud sync (auth + Firestore)
 - Standard Works bundled as JSON (~5MB), Conference talks fetched from iffy/generalconference GitHub repo (1971-2015) + Church website (2016+) and cached in Dexie
 - TipTap rich text editor for journal entries (same patterns as Organize Yourselves)
 - Session state persisted in Dexie sessionState table (key-value store)
@@ -16,7 +16,8 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - TipTap 3.x (StarterKit + Underline + Placeholder)
 - Dexie 3.2 + dexie-react-hooks
 - lucide-react for icons, date-fns for dates
-- Firebase (future: auth + Firestore sync)
+- Firebase (auth + Firestore sync, config via VITE_FIREBASE_* env vars)
+- ESLint 9 (flat config), Vitest 4 + Testing Library + fake-indexeddb
 
 ## Design System
 - **Colors:** parchment (cream), ink (warm gray), gold (accent), highlight (gold/red/green/blue)
@@ -29,7 +30,17 @@ Scripture study companion PWA optimized for tablet landscape. Split-pane layout:
 - `src/hooks/useConference.js` — useConferenceTalks, useTalk, useConferenceSearch hooks
 - `src/utils/conferences.js` — Conference data layer (CONFERENCES list, YAML/MD parsers, fetch/cache)
 - `src/components/journal/JournalEditor.jsx` — TipTap editor with auto-save
-- `src/components/layout/AppShell.jsx` — CSS Grid split-pane layout
+- `src/components/layout/PaneGrid.jsx` — Dynamic CSS grid with layout toolbar
+- `src/components/layout/PaneWrapper.jsx` — Pane container with type selector
+- `src/firebase/config.js` — Firebase initialization (graceful offline fallback)
+- `src/firebase/auth.js` — Google auth helpers
+- `src/firebase/sync.js` — Firestore journal sync
+
+## CI/CD & Deployment
+- **CI:** `.github/workflows/ci.yml` — lint + test + build on PRs and master pushes
+- **Deploy:** `.github/workflows/deploy.yml` — GitHub Pages deploy on master push
+- **Scripts:** `npm run lint`, `npm test`, `npm run build`
+- **Firebase config:** copy `.env.example` → `.env.local` with Firebase project values
 
 ## Phases
 - Phase 1: Core layout, design system, journal editor (COMPLETE)

@@ -14,7 +14,7 @@ export default function LibraryView({ onSelectEntry }) {
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
-  const { entries: rawEntries, loading } = useJournalSearch(search, MAX_LIBRARY_ENTRIES);
+  const { entries: rawEntries, loading: _loading } = useJournalSearch(search, MAX_LIBRARY_ENTRIES);
   const allTags = useAllTags();
 
   const entries = selectedTags.length > 0

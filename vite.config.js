@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: process.env.GITHUB_ACTIONS ? '/study-desk/' : '/',
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+  },
   server: {
     port: 3002,
     open: false,
