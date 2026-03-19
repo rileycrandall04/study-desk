@@ -1,19 +1,22 @@
 import { useRef, useState } from 'react';
 import { Download, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
-import { exportAllEntries, importEntries } from '../../db';
+import { useAuth } from '../../contexts/AuthContext';
+import { fetchAllJournalEntries, importJournalEntriesCloud } from '../../firebase/sync';
 import Modal from './Modal';
 
 /**
  * Backup (JSON export) and Restore (JSON import) controls.
  */
 export default function BackupRestore() {
+  const { user } = useAuth();
   const fileRef = useRef(null);
   const [importData, setImportData] = useState(null);
   const [status, setStatus] = useState(null); // { type: 'success'|'error', msg }
 
   async function handleExport() {
+    if (!user) return;
     try {
-      const entries = await exportAllEntries();
+      const entries = await fetchAllJournalEntries(user.uid);
       const payload = {
         version: 1,
         app: 'StudyDesk',
@@ -55,9 +58,9 @@ export default function BackupRestore() {
   }
 
   async function confirmImport() {
-    if (!importData) return;
+    if (!importData || !user) return;
     try {
-      await importEntries(importData.entries);
+      await importJournalEntriesCloud(user.uid, importData.entries);
       setStatus({ type: 'success', msg: `Imported ${importData.entries.length} entries` });
       setImportData(null);
     } catch (err) {
@@ -90,7 +93,7 @@ export default function BackupRestore() {
 
       <Modal open={!!importData} onClose={() => setImportData(null)} title="Import Backup">
         <p className="text-sm text-ink-400 dark:text-parchment-400 mb-2">
-          This will import <strong>{importData?.entries?.length || 0}</strong> journal entries into your database.
+          This will import <strong>{importData?.entries?.length || 0}</strong> journal entries into your cloud storage.
         </p>
         {importData?.exportedAt && (
           <p className="text-xs text-parchment-400 mb-4">
@@ -98,7 +101,7 @@ export default function BackupRestore() {
           </p>
         )}
         <p className="text-xs text-ink-300 dark:text-parchment-500 mb-4">
-          Existing entries with matching IDs will be overwritten.
+          Entries will be added as new items in your cloud storage.
         </p>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setImportData(null)} className="btn-secondary">Cancel</button>

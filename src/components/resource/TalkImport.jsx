@@ -21,7 +21,7 @@ export default function TalkImport({ onBack, onSaved }) {
     if (!canSave) return;
     setSaving(true);
     const key = `manual-${Date.now()}`;
-    const mm = month === 4 ? '04' : '10';
+    const _mm = month === 4 ? '04' : '10';
     const talk = {
       key,
       year: Number(year),

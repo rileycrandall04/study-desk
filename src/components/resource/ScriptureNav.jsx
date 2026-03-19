@@ -72,7 +72,7 @@ export default function ScriptureNav({
   const effectiveBookIdx = volumeData?.singleBook ? 0 : bookIdx;
   const book = volumeData?.books[effectiveBookIdx];
   const vol = VOLUMES.find(v => v.id === volumeId);
-  const chapterLabel = volumeId === 'dc' ? 'Section' : 'Chapter';
+  const _chapterLabel = volumeId === 'dc' ? 'Section' : 'Chapter';
 
   return (
     <div className="h-full flex flex-col">

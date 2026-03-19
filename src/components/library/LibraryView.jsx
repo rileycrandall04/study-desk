@@ -3,18 +3,20 @@ import { Search, Trash2 } from 'lucide-react';
 import EntryCard from '../journal/EntryCard';
 import Modal from '../shared/Modal';
 import EmptyState from '../shared/EmptyState';
+import { useAuth } from '../../contexts/AuthContext';
 import { useJournalSearch, useAllTags } from '../../hooks/useDb';
-import { deleteJournalEntry } from '../../db';
+import { deleteJournalEntryCloud } from '../../firebase/sync';
 import { MAX_LIBRARY_ENTRIES } from '../../utils/constants';
 
 /**
  * Full-page library view showing all journal entries as searchable cards.
  */
 export default function LibraryView({ onSelectEntry }) {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
-  const { entries: rawEntries, loading } = useJournalSearch(search, MAX_LIBRARY_ENTRIES);
+  const { entries: rawEntries, loading: _loading } = useJournalSearch(search, MAX_LIBRARY_ENTRIES);
   const allTags = useAllTags();
 
   const entries = selectedTags.length > 0
@@ -28,8 +30,8 @@ export default function LibraryView({ onSelectEntry }) {
   };
 
   async function handleDelete() {
-    if (deleteTarget) {
-      await deleteJournalEntry(deleteTarget.id);
+    if (deleteTarget && user) {
+      await deleteJournalEntryCloud(user.uid, deleteTarget.id);
       setDeleteTarget(null);
     }
   }

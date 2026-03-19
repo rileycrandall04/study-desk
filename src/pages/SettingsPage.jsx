@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import ThemeToggle from '../components/shared/ThemeToggle';
 import BackupRestore from '../components/shared/BackupRestore';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Settings page — appearance + data management.
  */
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-parchment-50 dark:bg-dark-bg">
@@ -39,6 +41,28 @@ export default function SettingsPage() {
             Export your journal entries as a JSON backup or restore from a previous backup.
           </p>
           <BackupRestore />
+        </div>
+
+        {/* Account */}
+        <div className="card">
+          <h2 className="font-serif text-base font-semibold text-ink-500 dark:text-parchment-200 mb-3">Account</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-sans text-ink-400 dark:text-parchment-400">
+                {user?.displayName || user?.email || 'Signed in'}
+              </p>
+              {user?.email && user?.displayName && (
+                <p className="text-xs text-parchment-400 dark:text-parchment-500">{user.email}</p>
+              )}
+            </div>
+            <button
+              onClick={logout}
+              className="btn-secondary flex items-center gap-2 text-sm"
+            >
+              <LogOut size={14} />
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* About */}

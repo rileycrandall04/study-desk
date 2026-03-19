@@ -6,7 +6,8 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { Cloud, CheckCircle2, X, Tag } from 'lucide-react';
 import JournalToolbar from './JournalToolbar';
 import { useJournalEntry, useAllTags } from '../../hooks/useDb';
-import { addJournalEntry, updateJournalEntry } from '../../db';
+import { useAuth } from '../../contexts/AuthContext';
+import { addJournalEntryCloud, updateJournalEntryCloud } from '../../firebase/sync';
 import { formatFull } from '../../utils/dates';
 import { AUTO_SAVE_MS } from '../../utils/constants';
 
@@ -32,7 +33,8 @@ function htmlToPlainText(html) {
  * Follows the same auto-save pattern as Organize Yourselves RichTextEditor.
  */
 const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreated }, ref) {
-  const { entry, loading } = useJournalEntry(entryId);
+  const { user } = useAuth();
+  const { entry, loading: _loading } = useJournalEntry(entryId);
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
@@ -74,6 +76,7 @@ const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreate
 
   // Save function
   const performSave = useCallback(async (html) => {
+    if (!user) return;
     const currentId = entryIdRef.current;
     if (!currentId) {
       // Lazy creation: create entry on first real content
@@ -84,7 +87,7 @@ const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreate
       creatingRef.current = true;
       try {
         setSaveStatus('saving');
-        const newId = await addJournalEntry({ title, html, plainText: text });
+        const newId = await addJournalEntryCloud(user.uid, { title, html, plainText: text });
         entryIdRef.current = newId;
         lastSavedRef.current = html;
         isDirtyRef.current = false;
@@ -98,11 +101,11 @@ const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreate
 
     setSaveStatus('saving');
     const text = htmlToPlainText(html);
-    await updateJournalEntry(currentId, { html, plainText: text, title });
+    await updateJournalEntryCloud(user.uid, currentId, { html, plainText: text, title });
     lastSavedRef.current = html;
     isDirtyRef.current = false;
     setSaveStatus('saved');
-  }, [title, onEntryCreated]);
+  }, [user, title, onEntryCreated]);
 
   // TipTap editor
   const editor = useEditor({
@@ -195,10 +198,10 @@ const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreate
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    if (entryIdRef.current) {
+    if (entryIdRef.current && user) {
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
-        updateJournalEntry(entryIdRef.current, { title: newTitle });
+        updateJournalEntryCloud(user.uid, entryIdRef.current, { title: newTitle });
         setSaveStatus('saved');
       }, AUTO_SAVE_MS);
     }
@@ -226,18 +229,18 @@ const JournalEditor = forwardRef(function JournalEditor({ entryId, onEntryCreate
     setTags(next);
     setTagInput('');
     setShowTagSuggestions(false);
-    if (entryIdRef.current) {
-      updateJournalEntry(entryIdRef.current, { tags: next });
+    if (entryIdRef.current && user) {
+      updateJournalEntryCloud(user.uid, entryIdRef.current, { tags: next });
     }
-  }, [tags]);
+  }, [tags, user]);
 
   const removeTag = useCallback((tag) => {
     const next = tags.filter(t => t !== tag);
     setTags(next);
-    if (entryIdRef.current) {
-      updateJournalEntry(entryIdRef.current, { tags: next });
+    if (entryIdRef.current && user) {
+      updateJournalEntryCloud(user.uid, entryIdRef.current, { tags: next });
     }
-  }, [tags]);
+  }, [tags, user]);
 
   const handleTagKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ',') {
