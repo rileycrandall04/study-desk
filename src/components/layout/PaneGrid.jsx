@@ -24,20 +24,21 @@ export default function PaneGrid({ layout, onLayoutChange, paneCount, onAddPane,
   return (
     <div className="h-screen flex flex-col bg-parchment-100 dark:bg-dark-bg">
       {/* Layout toolbar */}
-      <div className="flex items-center justify-center gap-1 px-3 py-1.5 bg-parchment-50 dark:bg-dark-surface border-b border-parchment-200 dark:border-dark-border flex-shrink-0">
-        <div className="flex items-center gap-0.5 bg-parchment-100 dark:bg-dark-bg rounded-md p-0.5">
+      <div className="flex items-center justify-center gap-2 px-4 py-2 bg-parchment-200/60 dark:bg-dark-surface border-b border-parchment-300 dark:border-dark-border flex-shrink-0">
+        <span className="text-xs font-sans font-medium text-ink-400 dark:text-parchment-400 mr-1">Layout</span>
+        <div className="flex items-center gap-1 bg-white dark:bg-dark-bg rounded-lg p-1 shadow-sm border border-parchment-200 dark:border-dark-border">
           {LAYOUTS.map(({ id, label, Icon }) => (
             <button
               key={id}
               onClick={() => onLayoutChange(id)}
-              className={`p-1.5 rounded transition-colors ${
+              className={`p-2 rounded-md transition-colors ${
                 layout === id
                   ? 'bg-gold-400 text-white shadow-sm'
-                  : 'text-ink-300 dark:text-parchment-400 hover:text-ink-500 dark:hover:text-parchment-200'
+                  : 'text-ink-400 dark:text-parchment-400 hover:text-ink-600 dark:hover:text-parchment-200 hover:bg-parchment-100 dark:hover:bg-dark-muted'
               }`}
               title={label}
             >
-              <Icon size={14} />
+              <Icon size={16} />
             </button>
           ))}
         </div>
@@ -45,10 +46,11 @@ export default function PaneGrid({ layout, onLayoutChange, paneCount, onAddPane,
         {paneCount < maxPanes && paneCount < layoutConfig.slots && (
           <button
             onClick={onAddPane}
-            className="ml-2 flex items-center gap-1 px-2 py-1 text-xs font-sans text-ink-300 dark:text-parchment-400 hover:text-gold-500 hover:bg-parchment-100 dark:hover:bg-dark-muted rounded-md transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-sans font-medium text-gold-500 dark:text-gold-300 hover:bg-gold-50 dark:hover:bg-dark-muted border border-gold-300 dark:border-gold-500/30 rounded-lg transition-colors"
             title="Add pane"
           >
-            <Plus size={12} />
+            <Plus size={14} />
+            <span>Add pane</span>
           </button>
         )}
       </div>
